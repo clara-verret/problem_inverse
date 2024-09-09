@@ -1,6 +1,6 @@
 import argparse
 
-from monte_carlo_direct import compare_methods
+from problem_inverse.direct_problem import compare_methods
 
 
 def main() :

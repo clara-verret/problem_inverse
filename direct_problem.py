@@ -1,5 +1,32 @@
 import random
 import numpy as np
+import matplotlib.pyplot as plt
+
+#finalement, c'est peut etre plus rapide de faire avec les delta. On peut faire les deux je pense
+
+class K:
+
+    def __init__(self, mc_n_): #for now, sphere
+        self.mc_n = mc_n_
+        self.mc_chord_lenghts = [2*np.sqrt(1-random.random()**2) for _ in range(self.mc_n)] #random cord length for a sphere of radius 1. multiply by r to get the cord length for a sphere of radius r
+
+    def theoretical(self, l, r):
+        return 1-np.sqrt(1-(l/2*r)**2)
+    
+    def estimate(self, l, r):
+        cord_lenghts = r*np.array(self.mc_chord_lenghts)
+        return sum(cord_lenghts < l)/self.mc_n
+
+def test_class() :
+    array_l=np.linspace(0,50,100)
+    k = K(1000)
+    y_axis = [k.estimate(l, 18) for l in array_l]
+
+    #plots array_l en x et y_axis en y
+    plt.plot(array_l, y_axis)
+    plt.show()
+
+test_class()
 
 N=100000
 discretisation_step = 100

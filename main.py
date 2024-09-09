@@ -1,6 +1,6 @@
 import argparse
 
-from monte_carlo_direct import main_monte_carlo
+from monte_carlo_direct import compare_methods
 
 
 def main() :
@@ -17,7 +17,7 @@ def main() :
     args = parser.parse_args()
     if args.direct:
         print("Solving direct problem")
-        main_monte_carlo() # dans le futur mettre la fonction qui construit CLD
+        compare_methods() # dans le futur mettre la fonction qui construit CLD
     elif args.inverse:
         print("Solving inverse problem")
         #mettre la fonction qui inverse le problème

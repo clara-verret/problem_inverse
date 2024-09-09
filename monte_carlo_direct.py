@@ -4,8 +4,12 @@ import numpy as np
 #### SPHERES
 
 def below_chord_length_spheres(l,r): #l is the length of the chord, r is the radius of the circle
-    """suppose we have a circle of radius r, and we draw* a chord of length l, what is the probability that the chord is below l
-    we can use monte carlo to estimate this probability"""
+    """
+    r = radius of the circle
+    l = length of the chord
+
+    Generates a random(see README for details) chord and returns if the chord is of length less than l.
+    """
     d = random.uniform(0, r)
     L=2 * np.sqrt(r**2 - d**2)
     return L<l

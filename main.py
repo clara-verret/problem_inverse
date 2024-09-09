@@ -1,6 +1,6 @@
 import argparse
 
-from problem_inverse.direct_problem import compare_methods
+from direct_problem import compare_methods
 
 
 def main() :

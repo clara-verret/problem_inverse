@@ -5,24 +5,36 @@ from scipy.stats import norm
 
 class kernel_K:
     """
-    Gives the theoretical and estimated (with Monte Carlo) kernel function (k(l,r) = P(L<l | R=r)) 
-    for the direct problem, in the case of a sphere.
+    gives the theoretical and estimated (with Monte Carlo) kernel function for the direct problem, in the case of spheroids
+    kernel function = k(l,r) = P(L<l | R=r)
 
     Args:
     mc_n_ : number of monte carlo simulations to estimate the estimated kernel function
+    eta_ : parameter of the spheroid. eta = 1 for spheres
     """
 
-    def __init__(self, mc_n_):
+    def __init__(self, mc_n_, eta_ = 1):
         self.mc_n = mc_n_
-        self.mc_chord_lenghts = np.array([2*np.sqrt(1-random.random()**2) for _ in range(self.mc_n)]) #random cord length for a sphere of radius 1. multiply by r to get the cord length for a sphere of radius r
+        self.mc_chord_lenghts = np.array([2*np.sqrt(1-random.random()**2) for _ in range(self.mc_n)]) #random(see README for precisions) cord length for a sphere of radius 1. multiply by r to get the cord length for a sphere of radius r
+        self.eta = eta_
 
     def theoretical(self, l, r):
-        """Theoretical computation of the kernel.
-        See REAMDE for the formula.
-        """
-        if l>=2*r:
-            return 1
-        return 1-np.sqrt(1-(l/(2*r))**2)
+        if self.eta == 1: #spheres, we have a closed form solution
+            if l >= 2*r:
+                return 1
+            return 1 - np.sqrt(1-(l/(2*r))**2)
+
+        def alpha(theta, phi) :
+            return   ( (np.cos(phi))**2        /       (  (np.cos(theta))**2 + (self.eta**2 * (np.sin(theta))**2 )  ) ) + (np.sin(phi))**2
+        
+        def integrand(theta, phi):
+            sqrtaux = 0 #if the inside of the sqrt is negative, l is bigger than any possible chord, so k(l,r) = 1, so the sqrt is zero
+            insidesqrt = 1-(l/(2*r))**2 * alpha(theta, phi)
+            if insidesqrt > 0:
+                sqrtaux = np.sqrt(insidesqrt)
+            return (1-sqrtaux)*np.sin(theta)/(4*np.pi)
+
+        return integrate.dblquad(integrand, 0, 2*np.pi, 0, np.pi)[0]
     
     def estimate(self, l, r):
         '''Monte carlo estimation of the kernel.'''

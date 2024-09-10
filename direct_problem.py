@@ -24,7 +24,7 @@ class kernel_K:
         cord_lenghts = r*self.mc_chord_lenghts
         return np.sum(cord_lenghts < l)/self.mc_n
 
-class Direct:
+class PSD_to_CLD:
     """
     Takes in a PSD and outputs a CLD
 
@@ -80,7 +80,7 @@ def solve_direct_problem_normal_psd(num_mc, r_min,r_max,mean,sigma):
     plt.clf()
 
     #Creates the estimated cumulative CLD and plots it
-    direct = Direct(psd,r_min,r_max,kernel_k.estimate)
+    direct = PSD_to_CLD(psd,r_min,r_max,kernel_k.estimate)
     plt.plot(list_l, [direct.cumulative_CLD(l) for l in list_l], color='r')
     plt.savefig('Graphs/cumulative_cld_try.png')  
     plt.clf()
@@ -91,7 +91,7 @@ def solve_direct_problem_normal_psd(num_mc, r_min,r_max,mean,sigma):
     plt.clf()
 
     #Creates the theoretical cumulative CLD and plots it
-    direct = Direct(psd,r_min,r_max,kernel_k.theoretical)
+    direct = PSD_to_CLD(psd,r_min,r_max,kernel_k.theoretical)
     plt.plot(list_l, [direct.cumulative_CLD(l) for l in list_l], color='g')
     plt.savefig('Graphs/cumulative_cld_theory.png')
     plt.clf()

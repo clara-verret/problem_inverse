@@ -1,7 +1,8 @@
 import argparse
 
-from direct_problem import compare_methods
-
+from direct_problem import solve_direct_problem_normal_psd
+from global_constants import NUM_MC, R_MIN, R_MAX, MEAN, SIGMA
+from analyze import analyze_direct_problem
 
 def main() :
     """Compute either the direct or inverse problem"""
@@ -16,8 +17,8 @@ def main() :
 
     args = parser.parse_args()
     if args.direct:
-        print("Solving direct problem")
-        compare_methods() # dans le futur mettre la fonction qui construit CLD
+        print("Analysing direct problem")
+        analyze_direct_problem(NUM_MC, R_MIN, R_MAX, MEAN, SIGMA)
     elif args.inverse:
         print("Solving inverse problem")
         #mettre la fonction qui inverse le problème

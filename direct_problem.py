@@ -1,6 +1,5 @@
 import random
 import numpy as np
-import matplotlib.pyplot as plt
 import scipy.integrate as integrate
 from scipy.stats import norm
 
@@ -18,6 +17,8 @@ class kernel_K:
         self.mc_chord_lenghts = np.array([2*np.sqrt(1-random.random()**2) for _ in range(self.mc_n)]) #random cord length for a sphere of radius 1. multiply by r to get the cord length for a sphere of radius r
 
     def theoretical(self, l, r):
+        if l>=2*r:
+            return 1
         return 1-np.sqrt(1-(l/(2*r))**2)
     
     def estimate(self, l, r):
@@ -26,7 +27,7 @@ class kernel_K:
 
 class PSD_to_CLD:
     """
-    Takes in a PSD and outputs a CLD
+    Takes in a normalized PSD and outputs a CLD
 
     Args:
     psd_ : function of r
@@ -39,11 +40,13 @@ class PSD_to_CLD:
         self.r_max = rmax_
         self.kernel_k = kernel_k_
 
-    def cumulative_CLD(self,l): #This is the normalized cumulative CLD (Q bar)
-        return integrate.quad(lambda r: self.psd(r) * self.kernel_k(l,r), self.r_min, self.r_max)[0]
+    def cumulative_CLD(self,l):
+        """Normalized cumulative CLD (Q bar)"""
+        return integrate.quad(lambda r: self.psd(r) * self.kernel_k(l,r), self.r_min, self.r_max, epsabs=1e-4, epsrel=1e-4)[0]
     
-    def discrete_CLD(self,l):
-        return 0.01*(self.cumulative_CLD(l) - self.cumulative_CLD(l-0.01))
+    def CLD(self,l, h=0.01):
+        """Compute CLD using forward finite difference formula for the derivative"""
+        return (self.cumulative_CLD(l+h) - self.cumulative_CLD(l-h))/(2*h)
 
 ###################################################################################################
 
@@ -60,46 +63,11 @@ def solve_direct_problem_normal_psd(num_mc, r_min,r_max,mean,sigma):
     """
     #Creates the PSD and plot it
     psd = lambda r : norm.pdf(r, mean, sigma)
-    list_r=np.linspace(r_min,r_max,100)
-    plt.plot(list_r, [psd(r) for r in list_r])
-    plt.savefig('Graphs/original_psd.png')
-    plt.clf()
-
-    #Creates the kernel functions (spheres) and plots them
+    normalized_psd = lambda r : psd(r)/integrate.quad(psd, r_min, r_max)[0]
+    #Creates the kernel functions (spheres)
     kernel_k =kernel_K(num_mc)
-    list_l = np.linspace(0,2*list_r[25],100)
-    plt.plot(list_l, [kernel_k.estimate(l,list_r[25]) for l in list_l], color='r')
-    plt.plot(list_l, [kernel_k.theoretical(l,list_r[25]) for l in list_l], color='g')
-    plt.savefig('Graphs/k_theory_try.png') 
-    plt.clf() 
-    plt.plot(list_l, [kernel_k.estimate(l,list_r[25]) for l in list_l], color='r')
-    plt.savefig('Graphs/k_try.png')
-    plt.clf()
-    plt.plot(list_l, [kernel_k.theoretical(l,list_r[25]) for l in list_l], color='g')
-    plt.savefig('Graphs/k_theory.png')
-    plt.clf()
-
-    #Creates the estimated cumulative CLD and plots it
-    direct = PSD_to_CLD(psd,r_min,r_max,kernel_k.estimate)
-    plt.plot(list_l, [direct.cumulative_CLD(l) for l in list_l], color='r')
-    plt.savefig('Graphs/cumulative_cld_try.png')  
-    plt.clf()
-
-    #Creates the estimated discrete CLD and plots it
-    plt.plot(list_l, [direct.discrete_CLD(l) for l in list_l], color='r')
-    plt.savefig('Graphs/discrete_cld_try.png')
-    plt.clf()
-
-    #Creates the theoretical cumulative CLD and plots it
-    direct = PSD_to_CLD(psd,r_min,r_max,kernel_k.theoretical)
-    plt.plot(list_l, [direct.cumulative_CLD(l) for l in list_l], color='g')
-    plt.savefig('Graphs/cumulative_cld_theory.png')
-    plt.clf()
-
-    #Creates the theoretical discrete CLD and plots it
-    plt.plot(list_l, [direct.discrete_CLD(l) for l in list_l], color='g')
-    plt.savefig('Graphs/discrete_cld_theory.png')
-    plt.clf()
-
-solve_direct_problem_normal_psd(10000,1,2,1.5,0.3)
-exit()
+    #Creates the estimated cumulative CLD
+    direct_estimated_k = PSD_to_CLD(normalized_psd,r_min,r_max,kernel_k.estimate)
+    #Creates the theoretical cumulative CLD
+    direct_theoretical_k = PSD_to_CLD(normalized_psd,r_min,r_max,kernel_k.theoretical)
+    return normalized_psd, kernel_k, direct_estimated_k, direct_theoretical_k

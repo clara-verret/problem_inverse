@@ -3,7 +3,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-from direct_problem import solve_direct_problem_normal_psd, solve_direct_problem_normal_psd_discrete
+from direct_problem import solve_direct_problem_normal_psd, solve_direct_problem_normal_psd_discrete, solve_direct_problem_dirac_psd
 from inverse_problem import compute_discrete_tikhonov
 
 def analyze_direct_problem(num_mc, r_min,r_max,mean,sigma):
@@ -28,7 +28,7 @@ def analyze_direct_problem(num_mc, r_min,r_max,mean,sigma):
 
     #plot kernel k in fonction of l at fixed r
     r= mean
-    list_l = np.linspace(0,2*r,10)
+    list_l = np.linspace(0,4*r,10)
     plt.plot(list_l, [kernel_k.estimate(l,r) for l in list_l], color='r', label='estimated kernel with monte carlo')
     plt.plot(list_l, [kernel_k.theoretical(l,r) for l in list_l], color='g', label='theoretical kernel')
     plt.xlabel('l')
@@ -57,6 +57,84 @@ def analyze_direct_problem(num_mc, r_min,r_max,mean,sigma):
     plt.title('Comparaison of CLD')
     plt.legend()
     plt.savefig('Graphs/cld.png')
+    plt.clf()
+
+def analyze_direct_problem_dirac(num_mc, r):
+    theory_CLD, kernel_k_theory = solve_direct_problem_dirac_psd(num_mc, r, mode = 'theory')
+    estimated_CLD, kernel_k_estimated = solve_direct_problem_dirac_psd(num_mc, r, mode = 'estimated')
+
+    #plot kernel k
+    list_l = np.linspace(0,4*r,10)
+    plt.plot(list_l, [kernel_k_estimated.function(l,r) for l in list_l], color='r', label='estimated kernel with monte carlo')
+    plt.plot(list_l, [kernel_k_theory.function(l,r) for l in list_l], color='g', label='theoretical kernel')
+    plt.xlabel('l')
+    plt.ylabel('kernel k')
+    plt.title('Comparaison of kernels at fixed r')
+    plt.legend()
+    plt.savefig('Graphs/kernels_dirac.png')
+    plt.clf()
+
+    #plot cumulative CLD
+    list_l = np.linspace(0,2*r,10)
+    plt.plot(list_l, [estimated_CLD.cumulative_CLD(l) for l in list_l], color='r', label='estimated cumulative CLD')
+    plt.plot(list_l, [theory_CLD.cumulative_CLD(l) for l in list_l], color='g', label='theoretical cumulative CLD')
+    plt.xlabel('l')
+    plt.ylabel('cumulative CLD')
+    plt.title('Comparaison of cumulative CLD')
+    plt.legend()
+    plt.savefig('Graphs/cumulative_cld_dirac.png')
+    plt.clf()
+
+    #plot CLD
+    plt.plot(list_l, [estimated_CLD.CLD(l) for l in list_l], color='r', label='estimated CLD')
+    plt.plot(list_l, [theory_CLD.CLD(l) for l in list_l], color='g', label='theoretical CLD')
+    plt.xlabel('l')
+    plt.ylabel('CLD')
+    plt.title('Comparaison of CLD')
+    plt.legend()
+    plt.savefig('Graphs/cld_dirac.png')
+    plt.clf()
+
+def analyze_direct_problem_dirac_eta(num_mc, r):
+    etas = [0.5,1,2]
+
+    theory_cld_eta_05, kernel_k_theory_eta_05 = solve_direct_problem_dirac_psd(num_mc, r, mode = 'theory', eta = 0.5)
+    theory_cld_eta_1, kernel_k_theory_eta_1 = solve_direct_problem_dirac_psd(num_mc, r, mode = 'theory', eta = 1)
+    theory_cld_eta_2, kernel_k_theory_eta_2 = solve_direct_problem_dirac_psd(num_mc, r, mode = 'theory', eta = 2)
+
+    #plot kernel k
+    list_l = np.linspace(0,4*r,10)
+    plt.plot(list_l, [kernel_k_theory_eta_05.function(l,r) for l in list_l], color='r', label='eta = 0.5')
+    plt.plot(list_l, [kernel_k_theory_eta_1.function(l,r) for l in list_l], color='g', label='eta = 1')
+    plt.plot(list_l, [kernel_k_theory_eta_2.function(l,r) for l in list_l], color='b', label='eta = 2')
+    plt.xlabel('l')
+    plt.ylabel('kernel k')
+    plt.title('Comparaison of kernels at fixed r')
+    plt.legend()
+    plt.savefig('Graphs/kernels_dirac_eta.png')
+    plt.clf()
+
+    #plot cumulative CLD
+    list_l = np.linspace(0,4*r,10)
+    plt.plot(list_l, [theory_cld_eta_05.cumulative_CLD(l) for l in list_l], color='r', label='eta = 0.5')
+    plt.plot(list_l, [theory_cld_eta_1.cumulative_CLD(l) for l in list_l], color='g', label='eta = 1')
+    plt.plot(list_l, [theory_cld_eta_2.cumulative_CLD(l) for l in list_l], color='b', label='eta = 2')
+    plt.xlabel('l')
+    plt.ylabel('cumulative CLD')
+    plt.title('Comparaison of cumulative CLD')
+    plt.legend()
+    plt.savefig('Graphs/cumulative_cld_dirac_eta.png')
+    plt.clf()
+
+    #plot CLD
+    plt.plot(list_l, [theory_cld_eta_05.CLD(l) for l in list_l], color='r', label='eta = 0.5')
+    plt.plot(list_l, [theory_cld_eta_1.CLD(l) for l in list_l], color='g', label='eta = 1')
+    plt.plot(list_l, [theory_cld_eta_2.CLD(l) for l in list_l], color='b', label='eta = 2')
+    plt.xlabel('l')
+    plt.ylabel('CLD')
+    plt.title('Comparaison of CLD')
+    plt.legend()
+    plt.savefig('Graphs/cld_dirac_eta.png')
     plt.clf()
 
 def analyze_discrete_direct_problem(num_mc, r_min,r_max,mean,sigma):

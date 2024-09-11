@@ -10,13 +10,22 @@ class kernel_K:
 
     Args:
     mc_n_ : number of monte carlo simulations to estimate the estimated kernel function
-    eta_ : parameter of the spheroid. eta = 1 for spheres
+    eta_ : parameter of the spheroid. eta = 1 for spheres. Estimate currently only works for spheres
+    mode : what method .function will use
+    possible modes : 'theory', 'estimated'
     """
 
-    def __init__(self, mc_n_, eta_ = 1):
+    def __init__(self, mc_n_, eta_ = 1, mode = 'theory'):
         self.mc_n = mc_n_
         self.mc_chord_lenghts = np.array([2*np.sqrt(1-random.random()**2) for _ in range(self.mc_n)]) #random(see README for precisions) cord length for a sphere of radius 1. multiply by r to get the cord length for a sphere of radius r
         self.eta = eta_
+
+        self.function = None
+        if mode == 'theory':
+            self.function = self.theoretical
+        elif mode == 'estimated':
+            self.function = self.estimate
+            
 
     def theoretical(self, l, r):
         if self.eta == 1: #spheres, we have a closed form solution
@@ -64,6 +73,10 @@ class kernel_K:
             kernel_matrix=np.sum(is_success, axis=1)/self.mc_n
         return kernel_matrix
 
+
+
+
+
 class PSD_to_CLD:
     """
     Takes in a normalized PSD and outputs a CLD
@@ -81,6 +94,8 @@ class PSD_to_CLD:
 
     def cumulative_CLD(self,l):
         """Normalized cumulative CLD (Q bar)"""
+        if self.r_min == self.r_max : #Dirac, no need to integrate
+            return self.kernel_k(l,self.r_min)
         return integrate.quad(lambda r: self.psd(r) * self.kernel_k(l,r), self.r_min, self.r_max, epsabs=1e-4, epsrel=1e-4)[0]
         
     def CLD(self,l, h=0.01):
@@ -152,3 +167,17 @@ def solve_direct_problem_normal_psd_discrete(num_mc, r_min,r_max,mean,sigma):
     PSD_to_CLD_with_k_theoretical = PSD_to_CLD_discrete(normalized_discrete_psd,
                                                kernel_k.compute_kernel_matrix(r_min,r_max, theortical_computation=True))
     return normalized_discrete_psd, kernel_k, PSD_to_CLD_with_k_estimated, PSD_to_CLD_with_k_theoretical
+
+def solve_direct_problem_dirac_psd(num_mc, r, mode = 'theory', eta = 1):
+    """
+    Solve the direct problem with a dirac PSD
+
+    Args:
+    num_mc : number of monte carlo simulations to estimate the estimated kernel function
+    r : value of the dirac PSD
+    mode : what method is used
+    """
+    kernel_k =kernel_K(num_mc, eta_= eta, mode = mode)
+    #Creates the CLDs
+    CLDs = PSD_to_CLD(r,r,r,kernel_k.function)
+    return CLDs, kernel_k

@@ -46,9 +46,12 @@ class kernel_K:
         return integrate.dblquad(integrand, 0, 2*np.pi, 0, np.pi)[0]
     
     def estimate(self, l, r):
-        '''Monte carlo estimation of the kernel.'''
-        cord_lenghts = r*self.mc_chord_lenghts
-        return np.sum(cord_lenghts < l)/self.mc_n
+        if self.eta == 1:
+            '''Monte carlo estimation of the kernel.'''
+            cord_lenghts = r*self.mc_chord_lenghts
+            return np.sum(cord_lenghts < l)/self.mc_n
+        else:
+            raise NotImplementedError("Estimation for spheroids is not implemented yet")
     
     def compute_kernel_matrix(self,r_min,r_max, theortical_computation = False, num_l = 100, num_r = 100):
         """Compute the kernel matrix (K(l_i,r_j))_(i,j).

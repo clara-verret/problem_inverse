@@ -52,6 +52,22 @@ class kernel_K:
             cord_lenghts = r*self.mc_chord_lenghts
             return np.sum(cord_lenghts < l)/self.mc_n
         else:
+
+            def rejection_sampling(f, x_min, x_max, nb, M):
+                samples = []
+                while len(samples) < nb:
+                    x = np.random.uniform(x_min, x_max)
+                    y = np.random.uniform(0, M)
+                    if y < f(x):
+                        samples.append(x)
+                return np.array(samples)
+
+            def density_theta(x):
+                if x < 0 or x > np.pi:
+                    return 0
+                else:
+                    return np.sin(x) / 2
+                
             # generate the shadow on the (x,y) plane with rotation theta around y axis and rotation phi around z axis
             def compute_contour(r, eta, theta, phi):
 
@@ -97,7 +113,10 @@ class kernel_K:
                 nb_ys is the number of y we choose randomly for a given rotation (theta, phi)
                 """
                 l_list = []
-                thetas = np.random.uniform(0, np.pi, mc)
+                x_min = 0
+                x_max = np.pi
+                M = 1/2
+                thetas = rejection_sampling(density_theta, x_min, x_max, mc, M)
                 phis = np.random.uniform(0, 2*np.pi, mc)
 
                 for theta, phi in zip(thetas, phis):

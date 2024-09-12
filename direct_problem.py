@@ -2,6 +2,7 @@ import random
 import numpy as np
 import scipy.integrate as integrate
 from scipy.stats import norm
+import matplotlib.pyplot as plt
 
 class kernel_K:
     """
@@ -51,8 +52,68 @@ class kernel_K:
             cord_lenghts = r*self.mc_chord_lenghts
             return np.sum(cord_lenghts < l)/self.mc_n
         else:
-            raise NotImplementedError("Estimation for spheroids is not implemented yet")
-    
+            # generate the shadow on the (x,y) plane with rotation theta around y axis and rotation phi around z axis
+            def compute_contour(r, eta, theta, phi):
+
+                alpha = (np.cos(phi)**2) / (np.cos(theta)**2 + eta**2 * np.sin(theta)**2) + np.sin(phi)**2
+                beta = (np.sin(phi)**2) / (np.cos(theta)**2 + eta**2 * np.sin(theta)**2) + np.cos(phi)**2
+                gamma = - ((eta**2 - 1) * (np.sin(theta))**2 * np.sin(2*theta)) / (np.cos(theta)**2 + eta**2 * np.sin(theta)**2)
+
+                # Create a grid of points (x, y)
+                x = np.linspace(-eta*r, eta*r, 400)
+                y = np.linspace(-eta*r, eta*r, 400)
+                X, Y = np.meshgrid(x, y)
+
+                # Define the function for the equation
+                Z = alpha * X**2 + beta * Y**2 + gamma * X * Y - r**2
+                contour = plt.contour(X, Y, Z, levels=[0], colors='blue')  # Contour where the equation equals 0
+                # Extract contour paths
+                path = contour.collections[0].get_paths()[0]
+                vertices = path.vertices
+                xs = vertices[:, 0]
+                ys = vertices[:, 1]
+
+                return xs, ys
+
+            # find zeros of a function (intersection of ellipse and y for the chord length)
+            def find_zeros(x, y, zeta):
+                # Find where the sign of (y - zeta) changes
+                indices = np.where(np.diff(np.sign(y - zeta)))[0]
+
+                x_roots = []
+                for i in indices:
+                    # Linear interpolation formula to approximate the root
+                    x1, x2 = x[i], x[i+1]
+                    y1, y2 = y[i], y[i+1]
+                    
+                    # Approximate x where y = zeta
+                    root_x = x1 + (zeta - y1) * (x2 - x1) / (y2 - y1)
+                    x_roots.append(root_x)
+                
+                return np.array(x_roots)
+
+            def monte_carlo(L, r, eta, nb_ys=1, mc=2):
+                """
+                nb_ys is the number of y we choose randomly for a given rotation (theta, phi)
+                """
+                l_list = []
+                thetas = np.random.uniform(0, np.pi, mc)
+                phis = np.random.uniform(0, 2*np.pi, mc)
+
+                for theta, phi in zip(thetas, phis):
+                    xs_contour, ys_contour = compute_contour(r, eta, theta, phi)
+                    max_y = np.max(ys_contour)
+                    min_y = np.min(ys_contour)
+                    ys = np.random.uniform(min_y, max_y, nb_ys)
+
+                    for yl in ys:
+                        x_zeros = find_zeros(xs_contour, ys_contour, yl)
+                        l = np.abs(x_zeros[0] - x_zeros[1])
+                        l_list.append(l)
+                # output: k(L,r)        
+                return np.sum(np.array(l_list) < L) / len(l_list)
+            return monte_carlo(l,r, self.eta, 1, self.mc_n)
+        
     def compute_kernel_matrix(self,r_min,r_max, theortical_computation = False, num_l = 100, num_r = 100):
         """Compute the kernel matrix (K(l_i,r_j))_(i,j).
         
@@ -75,10 +136,6 @@ class kernel_K:
             is_success = observed_cord_lengths_vector[np.newaxis, :, :] < l_vector[:,np.newaxis, np.newaxis]
             kernel_matrix=np.sum(is_success, axis=1)/self.mc_n
         return kernel_matrix
-
-
-
-
 
 class PSD_to_CLD:
     """

@@ -98,9 +98,9 @@ def analyze_direct_problem_dirac(num_mc, r):
 def analyze_direct_problem_dirac_eta(num_mc, r):
     etas = [0.5,1,2]
 
-    theory_cld_eta_05, kernel_k_theory_eta_05 = solve_direct_problem_dirac_psd(num_mc, r, mode = 'theory', eta = 0.5)
-    theory_cld_eta_1, kernel_k_theory_eta_1 = solve_direct_problem_dirac_psd(num_mc, r, mode = 'theory', eta = 1)
-    theory_cld_eta_2, kernel_k_theory_eta_2 = solve_direct_problem_dirac_psd(num_mc, r, mode = 'theory', eta = 2)
+    theory_cld_eta_05, kernel_k_theory_eta_05 = solve_direct_problem_dirac_psd(num_mc, r, mode = 'estimated', eta = 0.5)
+    theory_cld_eta_1, kernel_k_theory_eta_1 = solve_direct_problem_dirac_psd(num_mc, r, mode = 'estimated', eta = 1)
+    theory_cld_eta_2, kernel_k_theory_eta_2 = solve_direct_problem_dirac_psd(num_mc, r, mode = 'estimated', eta = 2)
 
     #plot kernel k
     list_l = np.linspace(0,4*r,10)

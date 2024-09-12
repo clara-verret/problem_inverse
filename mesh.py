@@ -78,6 +78,9 @@ class polyhedron:
         """
         plt.figure()
         plt.plot(*zip(*self.projected_vertices), 'o')
+        for i in range(4):
+            for j in range(i+1,4):
+                plt.plot(*zip(self.projected_vertices[i],self.projected_vertices[j]), color='b')
         plt.savefig("MeshPlots/projections/"+name)
 
     def plot_3d(self, name) :
@@ -173,6 +176,51 @@ def get_regular_tetrahedron_list_of_chords(r = 1, N = 10000) :
         list_of_chords.append(tetrahedron.random_chord_length())
     return list_of_chords
 
-chords = get_regular_tetrahedron_list_of_chords(N = 100000)
-plot_cld_hist(chords, 'cld', bins=1000)
-plot_cumulative_cld_hist(chords,'cumulative_cld', bins=1000)
+def get_cube_list_of_chords(r = 1, N = 10000) :
+    """
+    Returns the list of N chord lengths of a cube with edges of length r
+
+    Args :
+    r : length of the edges of the cube
+    N : number of chords
+    """
+    cube_ = cube(r)
+    list_of_chords = []
+    for i in range(N) :
+        Gamma = random_uniform_rotation_matrix()
+        cube_.rotate(Gamma)
+        list_of_chords.append(cube_.random_chord_length())
+    return list_of_chords
+
+def get_tetrahedron_cld() :
+    chords = get_regular_tetrahedron_list_of_chords(N = 524288)
+    plot_cld_hist(chords, 'cld_tetra', bins=4096)
+    plot_cumulative_cld_hist(chords,'cumulative_cld_tetra', bins=4096)
+
+def get_cube_cld() :
+    chords = get_cube_list_of_chords(N = 524288)
+    plot_cld_hist(chords, 'cld_cube', bins=4096)
+    plot_cumulative_cld_hist(chords,'cumulative_cld_cube', bins=4096)
+
+def plot_sample_tetrahedrons() :
+    zone1 = []
+    zone2 = []
+    for i in range(100) :
+        tetrahedron = regular_tetrahedron()
+        Gamma = random_uniform_rotation_matrix()
+        tetrahedron.rotate(Gamma)
+        chord_length = tetrahedron.random_chord_length()
+        if chord_length < 0.5 :
+            zone1.append(tetrahedron)
+        if chord_length > 0.8 :
+            zone2.append(tetrahedron)
+    
+    for i,tetra in enumerate(zone1) :
+        tetra.plot_proj('tetra_zone1_'+str(i))
+        tetra.plot_3d('tetra_zone1_'+str(i))
+
+    for i,tetra in enumerate(zone2) :
+        tetra.plot_proj('tetra_zone2_'+str(i))
+        tetra.plot_3d('tetra_zone2_'+str(i))
+
+plot_sample_tetrahedrons()

@@ -44,7 +44,7 @@ class polyhedron:
         y = random.uniform(y_min, y_max)
         return y
     
-    def chord_length(self) :
+    def random_chord_length(self) :
         """
         Returns the length of a random chord of the polyhedron
         """
@@ -72,6 +72,9 @@ class polyhedron:
     def plot_proj(self, name) :
         """
         plots the projected points in MeshPlots/projections/name
+
+        Args :
+        name : name of the file
         """
         plt.figure()
         plt.plot(*zip(*self.projected_vertices), 'o')
@@ -80,7 +83,9 @@ class polyhedron:
     def plot_3d(self, name) :
         """
         plots the 3D points in MeshPlots/3D/name
-        Shows the lines between the vertices, in the same color
+
+        Args :
+        name : name of the file
         """
         fig = plt.figure()
         ax = fig.add_subplot(111, projection='3d')
@@ -129,8 +134,45 @@ class cube(polyhedron) :
 def random_uniform_rotation_matrix() :
     return Rotation.random().as_matrix()
 
-poly = regular_tetrahedron()
-for i in range(4):
-    poly.plot_3d("tetra"+str(i))
-    Gamma = random_uniform_rotation_matrix()
-    poly.rotate(Gamma)
+def plot_cumulative_cld_hist(chords, name, bins=100) :
+    """
+    plots the cumulative cld as an histogram and saves it in MeshPlots/clds/name
+
+    Args :
+    polyhedrons : list of polyhedrons
+    """
+    chords.sort()
+    plt.figure()
+    plt.hist(chords, bins=bins, cumulative=True, density=True, histtype='step')
+    plt.savefig("MeshPlots/clds/"+name)
+
+def plot_cld_hist(chords, name, bins=100) :
+    """
+    plots the cld as an histogram and saves it in MeshPlots/clds/name
+
+    Args :
+    polyhedrons : list of polyhedrons
+    """
+    plt.figure()
+    plt.hist(chords, bins=bins, density=True)
+    plt.savefig("MeshPlots/clds/"+name)
+
+def get_regular_tetrahedron_list_of_chords(r = 1, N = 10000) :
+    """
+    Returns the list of N chord lengths of a regular tetrahedron with edges of length r
+
+    Args :
+    r : length of the edges of the tetrahedron
+    N : number of chords
+    """
+    tetrahedron = regular_tetrahedron(r)
+    list_of_chords = []
+    for i in range(N) :
+        Gamma = random_uniform_rotation_matrix()
+        tetrahedron.rotate(Gamma)
+        list_of_chords.append(tetrahedron.random_chord_length())
+    return list_of_chords
+
+chords = get_regular_tetrahedron_list_of_chords(N = 100000)
+plot_cld_hist(chords, 'cld', bins=1000)
+plot_cumulative_cld_hist(chords,'cumulative_cld', bins=1000)

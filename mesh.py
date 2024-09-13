@@ -341,5 +341,3 @@ def plot_sample_cubes() :
     for i,(cube_,y) in enumerate(zone3) :
         cube_.plot_proj('cube_zone3_'+str(i), y)
         cube_.plot_3d('cube_zone3_'+str(i))
-
-get_all_cld(N = 1048576, bins=8192)

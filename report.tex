@@ -3,3 +3,31 @@
 For now we studied 4 shapes : regular tetrahedron, cube, regular pyramid and regular triangular prism :
 
 \includegraphics[width=0.8\textwidth]{Images/p_shapes.png}
+
+In each case, we will consider all edges of the same length.
+
+\subsubsection{CLD plots}
+
+Here, we use Monte-Carlo to obtain the $CLD(l)$ plots for each shape.
+
+Method : 
+\begin{itemize}
+    \item Generate a basic tetrahedron (or cube, pyramid or prism), with known position and orientation.
+    \item Rotate it uniformly randomly.
+    \item Project it on the x-y plane.
+    \item generate a chord along the y-axis with a uniform random y-coordinate.
+    \item Find the intersection of the chord with the projection. Its length is the chord length.
+    \item Save the chord length.
+    \item Repeat the process from step 1.
+    \item Plot the CLDs as histograms.
+\end{itemize}
+
+\vspace{0.5cm} 
+
+Note : There is two types of CLD plots : 
+\begin{itemize}
+    \item The cumulative one : $CLD(l) = Q(l) = P(L \leq l)$
+    \item The differential one : $CLD(l) = q(l) = P(L = l) (density)$
+\end{itemize}
+
+The obtained plots are as follows :

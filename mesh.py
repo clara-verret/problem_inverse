@@ -184,6 +184,7 @@ def plot_cumulative_cld_hist(chords, name, bins=100) :
     chords.sort()
     plt.figure()
     plt.hist(chords, bins=bins, cumulative=True, density=True, histtype='step')
+    plt.xlabel('l'), plt.ylabel('cumulative_CLD')
     plt.savefig("MeshPlots/clds/"+name)
     plt.close()
 
@@ -196,6 +197,7 @@ def plot_cld_hist(chords, name, bins=100) :
     """
     plt.figure()
     plt.hist(chords, bins=bins, density=True)
+    plt.xlabel('l'), plt.ylabel('CLD')
     plt.savefig("MeshPlots/clds/"+name)
     plt.close()
 

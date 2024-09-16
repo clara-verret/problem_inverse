@@ -36,7 +36,7 @@ The file direct_problem.py compute the direct problem for all these options:
 
 The file inverse_problem.py compute the inverse problem in the case of discretized or continuous CLD.
 
-The file mesh.py 
+The file mesh.py studies the case of polyhedrons
 
 The file procrustes_distance.py present an elementary example of calculation of the Full Procrustes Distance. Note that the result depends on the order of the landmarks (here, two consecutive points correspond to an edge).
 
@@ -51,6 +51,7 @@ Then, for a circle of radius r the corresponding chord is $L' =r*L$.
 
 #### For polyhedrons particles
 
+For polyhedrons, we start by building a polyhedron with random orientation, then we project it in the x-y plane, then we choose a y such that the line y=y goes through the projection. The chord length is the length of the intersection between the y=y line and the projection (polygon).
 
 ### Hyper-parameter tuning for the inverse problem (see inverse_problem.py)
 We recall the inverse problem : $\text{Find } \psi \in X \text{ minimizing } ||\mathcal{K} \psi - \overline{Q}||^2 + \delta ||\psi||^2$, where $\delta$ is an hyper-parameter to be tuned.

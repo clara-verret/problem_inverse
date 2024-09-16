@@ -38,7 +38,8 @@ The file inverse_problem.py compute the inverse problem in the case of discretiz
 
 The file mesh.py 
 
-The file procrustes_distance.py
+The file procrustes_distance.py present an elementary example of calculation of the Full Procrustes Distance. Note that the result depends on the order of the landmarks (here, two consecutive points correspond to an edge).
+
 ### Monte Carlo in the direct problem (see direct_problem.py)
 
 We use Monte Carlo to estimate k, which allows us to compute the CLD in the direct problem.

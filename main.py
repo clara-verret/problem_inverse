@@ -1,7 +1,7 @@
 import argparse
 
 from global_constants import NUM_MC, R_MIN, R_MAX, MEAN, SIGMA
-from analyze import analyze_direct_problem, analyze_direct_problem_dirac, analyze_direct_problem_dirac_eta, analyze_discrete_inverse_problem, analyze_discrete_direct_problem
+from analyze import analyze_direct_problem_dirac, analyze_direct_problem_dirac_eta, analyze_discrete_inverse_problem, analyze_discrete_direct_problem
 
 def main() :
     """Compute either the direct or inverse problem"""
@@ -19,8 +19,8 @@ def main() :
 
     args = parser.parse_args()
     if args.direct:
-        #analyze_direct_problem(NUM_MC, R_MIN, R_MAX, MEAN, SIGMA)
-        analyze_discrete_direct_problem(NUM_MC, R_MIN, R_MAX, MEAN, SIGMA)
+        analyze_direct_problem_dirac(NUM_MC, MEAN)
+
     elif args.inverse:
         analyze_discrete_inverse_problem(NUM_MC, R_MIN, R_MAX, MEAN, SIGMA, args.noise)
        

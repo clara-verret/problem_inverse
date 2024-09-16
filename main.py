@@ -20,6 +20,9 @@ def main() :
     args = parser.parse_args()
     if args.direct:
         analyze_direct_problem_dirac(NUM_MC, MEAN)
+        #analyze_direct_problem_dirac_eta(NUM_MC, R_MIN, R_MAX, MEAN)
+        #analyze_direct_problem(num_mc, r_min,r_max,mean,sigma)
+        #analyze_discrete_direct_problem(NUM_MC, R_MIN, R_MAX, MEAN, SIGMA)
 
     elif args.inverse:
         analyze_discrete_inverse_problem(NUM_MC, R_MIN, R_MAX, MEAN, SIGMA, args.noise)

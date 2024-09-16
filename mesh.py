@@ -291,6 +291,19 @@ def get_all_cld(N = 524288, bins=4096) :
     get_pyramid_cld(N = N, bins=bins)
     get_prism_cld(N = N, bins=bins)
 
+def get_combinations_cld(N = 524288, bins=4096, prop_tetra = 0.5, prop_cube = 0.5, prop_pyramid = 0, prop_prism = 0) :
+    chords = []
+    if prop_tetra > 0 :
+        chords += get_regular_tetrahedron_list_of_chords(N = int(N*prop_tetra))
+    if prop_cube > 0 :
+        chords += get_cube_list_of_chords(N = int(N*prop_cube))
+    if prop_pyramid > 0 :
+        chords += get_regular_pyramid_list_of_chords(N = int(N*prop_pyramid))
+    if prop_prism > 0 :
+        chords += get_regular_triangular_prism_list_of_chords(N = int(N*prop_prism))
+    plot_cld_hist(chords, 'cld_combinations', bins=bins)
+    plot_cumulative_cld_hist(chords,'cumulative_cld_combinations', bins=bins)
+
 def plot_sample_tetrahedrons() :
     zone1 = []
     zone2 = []
@@ -341,3 +354,5 @@ def plot_sample_cubes() :
     for i,(cube_,y) in enumerate(zone3) :
         cube_.plot_proj('cube_zone3_'+str(i), y)
         cube_.plot_3d('cube_zone3_'+str(i))
+
+get_combinations_cld()

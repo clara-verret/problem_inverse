@@ -174,6 +174,26 @@ class regular_triangular_prism(polyhedron) :
 def random_uniform_rotation_matrix() :
     return Rotation.random().as_matrix()
 
+def evaluate_histogram(chords, l, bins=4096) :
+    """
+    Returns the value of the histogram at l
+
+    Args :
+    chords : list of chords
+    bins : number of bins for the histogram
+    l : value at which to evaluate the histogram
+    """
+    hist, bin_edges, _ = plt.hist(chords, bins=bins, cumulative=True, density=True)
+    bin_index = np.searchsorted(bin_edges, l) - 1
+
+    # Ensure the index is within a valid range
+    if bin_index < 0:
+        return 0  # l is smaller than the smallest bin
+    elif bin_index >= len(hist):
+        return 1  # l is larger than the largest bin, return the max of the CDF
+    
+    return hist[bin_index]
+
 def plot_cumulative_cld_hist(chords, name, bins=100) :
     """
     plots the cumulative cld as an histogram and saves it in MeshPlots/clds/name
@@ -266,32 +286,78 @@ def get_regular_triangular_prism_list_of_chords(r = 1, N = 10000) :
     return list_of_chords
 
 def get_tetrahedron_cld(N = 524288, bins=4096) :
+    """
+    Plots the cld and the cumulative cld of a regular tetrahedron
+
+    Args :
+    N : number of chords used to compute the histograms
+    bins : number of bins for the histograms
+    """
     chords = get_regular_tetrahedron_list_of_chords(N = N)
     plot_cld_hist(chords, 'cld_tetra', bins=bins)
     plot_cumulative_cld_hist(chords,'cumulative_cld_tetra', bins=bins)
 
 def get_cube_cld(N = 524288, bins=4096) :
+    """
+    Plots the cld and the cumulative cld of a cube
+
+    Args :
+    N : number of chords used to compute the histograms
+    bins : number of bins for the histograms
+    """
     chords = get_cube_list_of_chords(N = N)
     plot_cld_hist(chords, 'cld_cube', bins=bins)
     plot_cumulative_cld_hist(chords,'cumulative_cld_cube', bins=bins)
 
 def get_pyramid_cld(N = 524288, bins=4096) :
+    """
+    Plots the cld and the cumulative cld of a regular pyramid
+
+    Args :
+    N : number of chords used to compute the histograms
+    bins : number of bins for the histograms
+    """
     chords = get_regular_pyramid_list_of_chords(N = N)
     plot_cld_hist(chords, 'cld_pyramid', bins=bins)
     plot_cumulative_cld_hist(chords,'cumulative_cld_pyramid', bins=bins)
 
 def get_prism_cld(N = 524288, bins=4096) :
+    """
+    Plots the cld and the cumulative cld of a regular triangular prism
+
+    Args :
+    N : number of chords used to compute the histograms
+    bins : number of bins for the histograms
+    """
     chords = get_regular_triangular_prism_list_of_chords(N = N)
     plot_cld_hist(chords, 'cld_prism', bins=bins)
     plot_cumulative_cld_hist(chords,'cumulative_cld_prism', bins=bins)
 
 def get_all_cld(N = 524288, bins=4096) :
+    """
+    Plots the cld and the cumulative cld of a regular tetrahedron, a cube, a regular pyramid and a regular triangular prism
+
+    Args :
+    N : number of chords used to compute the histograms
+    bins : number of bins for the histograms
+    """
     get_tetrahedron_cld(N = N, bins=bins)
     get_cube_cld(N = N, bins=bins)
     get_pyramid_cld(N = N, bins=bins)
     get_prism_cld(N = N, bins=bins)
 
-def get_combinations_cld(N = 524288, bins=4096, prop_tetra = 0.5, prop_cube = 0.5, prop_pyramid = 0, prop_prism = 0) :
+def get_combination_list_of_chords(N = 524288, bins=4096, prop_tetra = 0.5, prop_cube = 0.5, prop_pyramid = 0, prop_prism = 0) :
+    """
+    Returns the list of N chord lengths for a combination of polyhedrons
+
+    Args :
+    N : number of chords
+    bins : number of bins for the histograms
+    prop_tetra : proportion of tetrahedrons
+    prop_cube : proportion of cubes
+    prop_pyramid : proportion of pyramids
+    prop_prism : proportion of prisms
+    """
     chords = []
     if prop_tetra > 0 :
         chords += get_regular_tetrahedron_list_of_chords(N = int(N*prop_tetra))
@@ -301,10 +367,49 @@ def get_combinations_cld(N = 524288, bins=4096, prop_tetra = 0.5, prop_cube = 0.
         chords += get_regular_pyramid_list_of_chords(N = int(N*prop_pyramid))
     if prop_prism > 0 :
         chords += get_regular_triangular_prism_list_of_chords(N = int(N*prop_prism))
+    return chords
+
+def get_combinations_cld(N = 524288, bins=4096, prop_tetra = 0.5, prop_cube = 0.5, prop_pyramid = 0, prop_prism = 0) :
+    """
+    Plots the cld and the cumulative cld of a combination of polyhedrons
+
+    Args :
+    N : number of chords used to compute the histograms
+    bins : number of bins for the histograms
+    prop_tetra : proportion of tetrahedrons
+    prop_cube : proportion of cubes
+    prop_pyramid : proportion of pyramids
+    prop_prism : proportion of prisms
+    """
+    chords = get_combination_list_of_chords(N = N, bins=bins, prop_tetra = prop_tetra, prop_cube = prop_cube, prop_pyramid = prop_pyramid, prop_prism = prop_prism)
     plot_cld_hist(chords, 'cld_combinations', bins=bins)
     plot_cumulative_cld_hist(chords,'cumulative_cld_combinations', bins=bins)
 
+def recover_cube_tetra_proportions(chords, N = 524288, bins = 4096) :
+    """
+    Assuming a chord length distribution of a mix of cubes and tetrahedrons, recovers the proportion of tetrahedrons.
+
+    Args :
+    chords : list of chord lengths corresponding to the mix of cubes and tetrahedrons
+    N : number of chords used to compute the histograms used to recover the proportions
+    bins : number of bins for the histograms used to recover the proportions
+    """
+    tetra_chords = get_regular_tetrahedron_list_of_chords(N = N)
+    cube_chords = get_cube_list_of_chords(N = N)
+
+    tetra_value_at_05 = evaluate_histogram(tetra_chords, 0.5, bins=bins)
+    cube_value_at_05 = evaluate_histogram(cube_chords, 0.5, bins=bins)
+    mix_value_at_05 = evaluate_histogram(chords, 0.5, bins=bins)
+
+    #We know that the value at 0.5 is the sum of the values for the tetrahedrons and the cubes, with respective proportions prop_tetra and prop_cube
+
+    return (mix_value_at_05 - cube_value_at_05) / (tetra_value_at_05 - cube_value_at_05)
+
+
 def plot_sample_tetrahedrons() :
+    """
+    Plots 100 projected and 3D tetrahedrons, classified in two zones according to their chord length
+    """
     zone1 = []
     zone2 = []
     for i in range(100) :
@@ -327,6 +432,9 @@ def plot_sample_tetrahedrons() :
         tetra.plot_3d('tetra_zone2_'+str(i))
 
 def plot_sample_cubes() :
+    """
+    Plots 100 projected and 3D cubes, classified in three zones according to their chord length
+    """
     zone1 = []
     zone2 = []
     zone3 = []
@@ -355,4 +463,13 @@ def plot_sample_cubes() :
         cube_.plot_proj('cube_zone3_'+str(i), y)
         cube_.plot_3d('cube_zone3_'+str(i))
 
-get_combinations_cld()
+def test_recovery() :
+    """
+    Tests the recovery of the proportion of tetrahedrons in a mix of cubes and tetrahedrons
+    """
+    mix_chords = get_combination_list_of_chords(N = 10000, prop_tetra = 0.8, prop_cube = 0.2)
+    prop_tetra = recover_cube_tetra_proportions(mix_chords)
+
+    print("Proportion of tetrahedrons in the mix :", prop_tetra)
+
+test_recovery()

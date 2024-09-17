@@ -38,6 +38,8 @@ The file inverse_problem.py compute the inverse problem in the case of discretiz
 
 The file mesh.py studies the case of polyhedrons
 test_recovery() : try the recovery of tetra/cube proportions given a mix CLD
+plot_sample_xxx() : exhibits the chords placement for the different zones of the histogram
+get_xxx_cld() : plots the CLDs
 
 The file procrustes_distance.py present an elementary example of calculation of the Full Procrustes Distance. Note that the result depends on the order of the landmarks (here, two consecutive points correspond to an edge).
 

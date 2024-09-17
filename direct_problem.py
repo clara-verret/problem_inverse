@@ -8,6 +8,7 @@ class kernel_K:
     """
     gives the theoretical and estimated (with Monte Carlo) kernel function for the direct problem, in the case of spheroids
     kernel function = k(l,r) = P(L<l | R=r)
+    Note : the estimated version vor eta != 1 is not working
 
     Args:
     mc_n_ : number of monte carlo simulations to estimate the estimated kernel function
@@ -52,6 +53,7 @@ class kernel_K:
             cord_lenghts = r*self.mc_chord_lenghts
             return np.sum(cord_lenghts < l)/self.mc_n
         else:
+            raise ValueError('The estimated version for eta != 1 is not working')
 
             def rejection_sampling(f, x_min, x_max, nb, M):
                 samples = []

@@ -37,6 +37,7 @@ The file direct_problem.py compute the direct problem for all these options:
 The file inverse_problem.py compute the inverse problem in the case of discretized or continuous CLD.
 
 The file mesh.py studies the case of polyhedrons
+test_recovery() : try the recovery of tetra/cube proportions given a mix CLD
 
 The file procrustes_distance.py present an elementary example of calculation of the Full Procrustes Distance. Note that the result depends on the order of the landmarks (here, two consecutive points correspond to an edge).
 

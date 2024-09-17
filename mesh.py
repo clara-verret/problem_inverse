@@ -471,5 +471,3 @@ def test_recovery() :
     prop_tetra = recover_cube_tetra_proportions(mix_chords)
 
     print("Proportion of tetrahedrons in the mix :", prop_tetra)
-
-test_recovery()
